@@ -1,0 +1,210 @@
+{
+	"info": {
+		"_postman_id": "da85fafd-3c00-42d6-b7af-d63052fa1fc6",
+		"name": "Products",
+		"description": "Các API liên quan đến mục sản phẩm",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38705930"
+	},
+	"item": [
+		{
+			"name": "List products",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json();\r",
+							"// 1. Check status code\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    try{\r",
+							"        pm.response.to.have.status(200);\r",
+							"    }catch(error){\r",
+							"        console.log(error);\r",
+							"        throw new Error(\"Fail!\");\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"// 2. Check response time\r",
+							"pm.test(\"Response time is less than 3000ms\", function () {\r",
+							"    try{\r",
+							"        pm.expect(pm.response.responseTime).to.be.below(3000);\r",
+							"    }catch(error){\r",
+							"        console.log(error);\r",
+							"        throw new Error(\"Fail!\");\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"// 3. Check response is not empty\r",
+							"pm.test(\"Response body is not empty\", function () {\r",
+							"    try{\r",
+							"        pm.expect(jsonData).to.not.be.null;\r",
+							"    }catch(error){\r",
+							"        console.log(error);\r",
+							"        throw new Error(\"Fail!\");\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"// 4. Check data exists\r",
+							"pm.test(\"Response has data\", function () {\r",
+							"    try{\r",
+							"        pm.expect(jsonData).to.have.property(\"data\");\r",
+							"    }catch(error){\r",
+							"        console.log(error);\r",
+							"        throw new Error(\"Fail!\");\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"// 5. Check data is an array\r",
+							"pm.test(\"Data has max 32 products / page\", function () {\r",
+							"    try{\r",
+							"        pm.expect(jsonData.data).to.have.property(\"data\").length <= 32;\r",
+							"    }catch(error){\r",
+							"        console.log(error);\r",
+							"        throw new Error(\"Fail!\");\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"\r",
+							"// 8. Validate sorting (desc - optional check)\r",
+							"pm.test(\"Data is sorted descending by updated date\", function () {\r",
+							"    try{\r",
+							"    let dates = jsonData.data.data.map(item => new Date(item.updatedAt).getTime());\r",
+							"\r",
+							"    let sorted = [...dates].sort((a, b) => b - a);\r",
+							"\r",
+							"    pm.expect(dates).to.eql(sorted);\r",
+							"    }catch(error){\r",
+							"        console.log(error);\r",
+							"        throw new Error(\"Fail!\")\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"//9. Validate any duplicate products\r",
+							"pm.test(\"No products are duplicated.\", function() {\r",
+							"    try{\r",
+							"        let products = jsonData.data.data;\r",
+							"\r",
+							"        let seen = new Set();\r",
+							"        let duplicates = [];\r",
+							"\r",
+							"        products.forEach(p => {\r",
+							"            let id = p.productVariantInfo?.id;\r",
+							"            let name = p.productVariantInfo?.name;\r",
+							"\r",
+							"            if (!id || !name) return; // bỏ qua nếu thiếu dữ liệu\r",
+							"\r",
+							"            let key = `${id}-${name}`;\r",
+							"\r",
+							"            if (seen.has(key)) {\r",
+							"                duplicates.push({ id, name });\r",
+							"            } else {\r",
+							"                seen.add(key);\r",
+							"            }\r",
+							"        });\r",
+							"\r",
+							"        pm.expect(duplicates).length < 1;\r",
+							"\r",
+							"    }catch(error){\r",
+							"        console.log(error);\r",
+							"        throw new Error(\"Fail!\");\r",
+							"    }\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"token\", \"your_token_here\");"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.atalink.com/org-products/products/group-by-orgs?limit=32&offset=0&sortType=desc&sortBy=updated&priceFrom=1000&priceTo=&locale=vi",
+					"protocol": "https",
+					"host": [
+						"api",
+						"atalink",
+						"com"
+					],
+					"path": [
+						"org-products",
+						"products",
+						"group-by-orgs"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "",
+							"description": "search name product",
+							"disabled": true
+						},
+						{
+							"key": "limit",
+							"value": "32"
+						},
+						{
+							"key": "offset",
+							"value": "0"
+						},
+						{
+							"key": "sortType",
+							"value": "desc"
+						},
+						{
+							"key": "sortBy",
+							"value": "updated",
+							"description": "best_macth/updated/price"
+						},
+						{
+							"key": "priceFrom",
+							"value": "1000"
+						},
+						{
+							"key": "priceTo",
+							"value": ""
+						},
+						{
+							"key": "locationCodes",
+							"value": "",
+							"description": "code-city",
+							"disabled": true
+						},
+						{
+							"key": "categoryCodes",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "orgCityIds",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "masterCategoryIds",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "locale",
+							"value": "vi"
+						}
+					]
+				},
+				"description": "API get tất cả sản phẩm của org tùy vào param truyền lên get để filter sản phẩm"
+			},
+			"response": []
+		}
+	]
+}
