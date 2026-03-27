@@ -66,7 +66,7 @@
 							"});\r",
 							"\r",
 							"\r",
-							"// 8. Validate sorting (desc - optional check)\r",
+							"// 6. Validate sorting (desc - optional check)\r",
 							"pm.test(\"Data is sorted descending by updated date\", function () {\r",
 							"    try{\r",
 							"    let dates = jsonData.data.data.map(item => new Date(item.updatedAt).getTime());\r",
@@ -80,7 +80,7 @@
 							"    }\r",
 							"});\r",
 							"\r",
-							"//9. Validate any duplicate products\r",
+							"//7. Validate any duplicate products\r",
 							"pm.test(\"No products are duplicated.\", function() {\r",
 							"    try{\r",
 							"        let products = jsonData.data.data;\r",
@@ -89,10 +89,10 @@
 							"        let duplicates = [];\r",
 							"\r",
 							"        products.forEach(p => {\r",
-							"            let id = p.productVariantInfo?.id;\r",
-							"            let name = p.productVariantInfo?.name;\r",
+							"            let id = p.masterProductId;\r",
+							"            let name = p.name;\r",
 							"\r",
-							"            if (!id || !name) return; // bỏ qua nếu thiếu dữ liệu\r",
+							"            if (!id || !name) return;\r",
 							"\r",
 							"            let key = `${id}-${name}`;\r",
 							"\r",
@@ -103,13 +103,26 @@
 							"            }\r",
 							"        });\r",
 							"\r",
-							"        pm.expect(duplicates).length < 1;\r",
+							"        pm.expect(duplicates.length).to.eql(0);\r",
 							"\r",
 							"    }catch(error){\r",
-							"        console.log(error);\r",
+							"        console.log(\"Case 7 : \" + error);\r",
 							"        throw new Error(\"Fail!\");\r",
 							"    }\r",
 							"});\r",
+							"\r",
+							"\r",
+							"//8. Validate products with priceTo-priceFrom\r",
+							"pm.test(\"Get data between priceFrom and priceTo\", function () {\r",
+							"    let priceFrom = Number(pm.request.url.query.get(\"priceFrom\"));\r",
+							"    let priceTo = Number(pm.request.url.query.get(\"priceTo\"));\r",
+							"\r",
+							"    let invalid = jsonData.data.data.filter(p =>\r",
+							"        p.highestPrice <= priceFrom && p.highestPrice >= priceTo\r",
+							"    );\r",
+							"    pm.expect(invalid.length).to.eql(0);\r",
+							"});\r",
+							"\r",
 							""
 						],
 						"type": "text/javascript",
@@ -120,7 +133,7 @@
 					"listen": "prerequest",
 					"script": {
 						"exec": [
-							"pm.environment.set(\"token\", \"your_token_here\");"
+							""
 						],
 						"type": "text/javascript",
 						"packages": {}
@@ -131,7 +144,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://api.atalink.com/org-products/products/group-by-orgs?limit=32&offset=0&sortType=desc&sortBy=updated&priceFrom=1000&priceTo=&locale=vi",
+					"raw": "https://api.atalink.com/org-products/products/group-by-orgs?limit=32&offset=0&sortType=desc&sortBy=updated&priceFrom=10&priceTo=10000&locale=vi",
 					"protocol": "https",
 					"host": [
 						"api",
@@ -169,11 +182,11 @@
 						},
 						{
 							"key": "priceFrom",
-							"value": "1000"
+							"value": "10"
 						},
 						{
 							"key": "priceTo",
-							"value": ""
+							"value": "10000"
 						},
 						{
 							"key": "locationCodes",
