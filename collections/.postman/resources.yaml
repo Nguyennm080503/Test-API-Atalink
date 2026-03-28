@@ -1,0 +1,19 @@
+# Use this workspace to collaborate
+workspace:
+  id: ""
+
+localResources:
+  collections:
+    - ..\Products.postman_collection.json
+    - ..\Auth.postman_collection.json
+    - ..\Profile.postman_collection.json
+
+# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
+cloudResources:
+  collections:
+    ..\postman\collections\Auth: 38705930-a18f2dd0-0f34-4ffb-9115-2bb9474b19ca
+    ..\postman\collections\Profile: 38705930-e21a3263-fe8d-42e1-838d-eb8c13560ef9
+    ..\postman\collections\Products: 38705930-da85fafd-3c00-42d6-b7af-d63052fa1fc6
+  environments:
+    ..\postman\environments\New Environment.environment.yaml: 38705930-8aa2192b-1fe8-4f48-912c-d3e708c3d8d7
+    ..\postman\environments\User_permission.environment.yaml: 38705930-8aa2192b-1fe8-4f48-912c-d3e708c3d8d7

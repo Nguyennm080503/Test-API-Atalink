@@ -1,0 +1,100 @@
+{
+  "info": {
+    "_postman_id": "e21a3263-fe8d-42e1-838d-eb8c13560ef9",
+    "name": "Profile",
+    "description": "This collection covers the **Profile** domain of the API, providing endpoints to retrieve and manage user profile information.\n\n## Endpoints\n\n- **MyProfile** — Fetches the authenticated user's profile data (`GET /users/:user_id`). Supports localization via the `locale` query parameter (e.g., `locale=vi` for Vietnamese).\n    \n\n## Variables\n\nThis collection relies on the following environment/collection variables:\n\n- `{{base_url}}` — The base URL of the API server.\n    \n- `{{user_id}}` — The unique identifier of the target user.\n    \n\n## Usage\n\nMake sure the `User_permission` environment is active and that `base_url` and `user_id` are properly configured before sending requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "38705930"
+  },
+  "item": [
+    {
+      "name": "MyProfile",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "let response = pm.response.json(); \r",
+              "let name = pm.environment.get(\"user_name\");\r",
+              "\r",
+              "\r",
+              "//1. Check retrun code is 200 in getting profile case \r",
+              "pm.test(\"Enter profile successfully!\" , function (){\r",
+              "    try{\r",
+              "        pm.response.to.have.status(200);\r",
+              "    }catch(error){\r",
+              "        console.log(error);\r",
+              "        throw new Error(\"Error: \" + error.message);\r",
+              "    }\r",
+              "})\r",
+              "\r",
+              "//2. Check if the user's name is displayed correctly\r",
+              "pm.test(\"User's name is displayed correctly\", function() {\r",
+              "    try{\r",
+              "        let fullname = response.data.last_name + \" \" + response.data.first_name;\r",
+              "        pm.expect(fullname).to.have.eql(name);\r",
+              "    }catch(error){\r",
+              "        console.log(error);\r",
+              "        throw new Error(\"Error: \" + error.message);\r",
+              "    }\r",
+              "})"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{user_token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/users/{{user_id}}?locale=vi",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "users",
+            "{{user_id}}"
+          ],
+          "query": [
+            {
+              "key": "locale",
+              "value": "vi"
+            }
+          ]
+        },
+        "description": "## MyProfile\n\nRetrieves the profile information of the currently authenticated user. The response includes user details such as first name and last name, returned in the specified locale.\n\n---\n\n### Method & Endpoint\n\n```\nGET {{base_url}}/users/{{user_id}}?locale=vi\n\n ```\n\n---\n\n### Authentication\n\nThis request uses **Bearer Token** authentication. The token is sourced from the environment variable `{{user_token}}`.\n\n```\nAuthorization: Bearer {{user_token}}\n\n ```\n\n---\n\n### Query Parameters\n\n| Parameter | Value | Description |\n| --- | --- | --- |\n| `locale` | `vi` | Sets the language/locale for the API response (Vietnamese) |\n\n---\n\n### Variables\n\nAll variables are resolved from the active environment (e.g., `User_permission`).\n\n| Variable | Description |\n| --- | --- |\n| `base_url` | The base URL of the API server |\n| `user_id` | The ID of the user whose profile is being fetched |\n| `user_token` | Bearer token used for authentication |\n| `user_name` | Expected full name of the user, used for response validation |\n\n---\n\n### Pre-request Script\n\nBefore the request is sent, the URL is dynamically constructed using `base_url` and `user_id` from the environment:\n\n``` js\nlet userId = pm.environment.get(\"user_id\");\npm.request.url = pm.environment.get(\"base_url\") + \"/users/\" + userId + \"?locale=vi\";\n\n ```\n\n---\n\n### Tests\n\nTwo post-response tests are executed after the request completes:\n\n**1\\. Enter profile successfully!**  \nVerifies that the API returns an HTTP `200 OK` status code, confirming the profile was retrieved successfully.\n\n**2\\. User's name is displayed correctly**  \nValidates that the full name returned in the response (`response.last_name + \" \" + response.first_name`) matches the value stored in the `user_name` environment variable."
+      },
+      "response": []
+    }
+  ]
+}

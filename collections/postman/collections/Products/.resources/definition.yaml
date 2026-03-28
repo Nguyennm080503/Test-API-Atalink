@@ -1,0 +1,60 @@
+$kind: collection
+description: >-
+  ## Products
+
+
+  This collection covers the **product listing** endpoints of the Atalink
+  platform. It is designed to test and validate the `org-products` API, which
+  retrieves products grouped by organizations.
+
+
+  ### What's included
+
+
+  - **List products** — Fetches a paginated list of products from `GET
+  /org-products/products/group-by-orgs`, supporting a rich set of query
+  parameters for filtering and sorting:
+      
+      - `q` — Search by product name
+          
+      - `limit` / `offset` — Pagination control
+          
+      - `sortBy` / `sortType` — Sorting by relevance, update date, or price
+          
+      - `priceFrom` / `priceTo` — Price range filter
+          
+      - `locale` — Language/locale (e.g. `vi`)
+          
+      - `locationCodes`, `categoryCodes`, `orgCityIds`, `masterCategoryIds` — Advanced filtering options
+
+          
+
+  ### Automated tests
+
+
+  Each request includes test scripts that verify:
+
+
+  - ✅ HTTP status code is `200`
+      
+  - ✅ Response time is under `3000ms`
+      
+  - ✅ Response body is not empty and contains a `data` property
+      
+  - ✅ Pagination returns at most `32` products per page
+      
+  - ✅ Results are sorted in descending order by `updatedAt`
+      
+  - ✅ No duplicate products appear in the response
+      
+  - ✅ All returned products fall within the specified price range
+      
+
+  ### Base URL
+
+
+  ```
+
+  https://api.atalink.com
+
+   ```

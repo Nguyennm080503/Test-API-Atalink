@@ -1,0 +1,30 @@
+$kind: collection
+description: >-
+  This collection covers the **Profile** domain of the API, providing endpoints
+  to retrieve and manage user profile information.
+
+
+  ## Endpoints
+
+
+  - **MyProfile** — Fetches the authenticated user's profile data (`GET
+  /users/:user_id`). Supports localization via the `locale` query parameter
+  (e.g., `locale=vi` for Vietnamese).
+      
+
+  ## Variables
+
+
+  This collection relies on the following environment/collection variables:
+
+
+  - `{{base_url}}` — The base URL of the API server.
+      
+  - `{{user_id}}` — The unique identifier of the target user.
+      
+
+  ## Usage
+
+
+  Make sure the `User_permission` environment is active and that `base_url` and
+  `user_id` are properly configured before sending requests.

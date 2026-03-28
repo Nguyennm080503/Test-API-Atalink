@@ -1,0 +1,179 @@
+$kind: http-request
+description: >-
+  ## MyProfile
+
+
+  Retrieves the profile information of the currently authenticated user. The
+  response includes user details such as first name and last name, returned in
+  the specified locale.
+
+
+  ---
+
+
+  ### Method & Endpoint
+
+
+  ```
+
+  GET {{base_url}}/users/{{user_id}}?locale=vi
+
+   ```
+
+  ---
+
+
+  ### Authentication
+
+
+  This request uses **Bearer Token** authentication. The token is sourced from
+  the environment variable `{{user_token}}`.
+
+
+  ```
+
+  Authorization: Bearer {{user_token}}
+
+   ```
+
+  ---
+
+
+  ### Query Parameters
+
+
+  | Parameter | Value | Description |
+
+  | --- | --- | --- |
+
+  | `locale` | `vi` | Sets the language/locale for the API response (Vietnamese)
+  |
+
+
+  ---
+
+
+  ### Variables
+
+
+  All variables are resolved from the active environment (e.g.,
+  `User_permission`).
+
+
+  | Variable | Description |
+
+  | --- | --- |
+
+  | `base_url` | The base URL of the API server |
+
+  | `user_id` | The ID of the user whose profile is being fetched |
+
+  | `user_token` | Bearer token used for authentication |
+
+  | `user_name` | Expected full name of the user, used for response validation |
+
+
+  ---
+
+
+  ### Pre-request Script
+
+
+  Before the request is sent, the URL is dynamically constructed using
+  `base_url` and `user_id` from the environment:
+
+
+  ``` js
+
+  let userId = pm.environment.get("user_id");
+
+  pm.request.url = pm.environment.get("base_url") + "/users/" + userId +
+  "?locale=vi";
+
+   ```
+
+  ---
+
+
+  ### Tests
+
+
+  Two post-response tests are executed after the request completes:
+
+
+  **1\. Enter profile successfully!**  
+
+  Verifies that the API returns an HTTP `200 OK` status code, confirming the
+  profile was retrieved successfully.
+
+
+  **2\. User's name is displayed correctly**  
+
+  Validates that the full name returned in the response (`response.last_name + "
+  " + response.first_name`) matches the value stored in the `user_name`
+  environment variable.
+url: "{{base_url}}/users/{{user_id}}?locale=vi"
+method: GET
+headers:
+  Authorization: "{{user_token}}"
+queryParams:
+  locale: vi
+auth:
+  type: bearer
+  credentials:
+    token: ""
+scripts:
+  - type: beforeRequest
+    code: "\r\n"
+    language: text/javascript
+  - type: afterResponse
+    code: "let response = pm.response.json(); \r
+
+      let name = pm.environment.get(\"user_name\");\r
+
+      \r
+
+      \r
+
+      //1. Check retrun code is 200 in getting profile case \r
+
+      pm.test(\"Enter profile successfully!\" , function (){\r
+
+      \    try{\r
+
+      \        pm.response.to.have.status(200);\r
+
+      \    }catch(error){\r
+
+      \        console.log(error);\r
+
+      \        throw new Error(\"Error: \" + error.message);\r
+
+      \    }\r
+
+      })\r
+
+      \r
+
+      //2. Check if the user's name is displayed correctly\r
+
+      pm.test(\"User's name is displayed correctly\", function() {\r
+
+      \    try{\r
+
+      \        let fullname = response.data.last_name + \" \" +
+      response.data.first_name;\r
+
+      \        pm.expect(fullname).to.have.eql(name);\r
+
+      \    }catch(error){\r
+
+      \        console.log(error);\r
+
+      \        throw new Error(\"Error: \" + error.message);\r
+
+      \    }\r
+
+      })"
+    language: text/javascript
+order: 1000

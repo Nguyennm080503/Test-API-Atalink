@@ -1,0 +1,158 @@
+$kind: http-request
+description: >-
+  ## Login (Sign In)
+
+
+  Authenticates a user and returns a JWT access token along with user profile
+  information. Use this endpoint to obtain the `access_token` required for
+  subsequent authenticated requests.
+
+
+  ---
+
+
+  ### HTTP Method & URL
+
+
+  ```
+
+  POST {{base_url}}/auth/sign_in
+
+   ```
+
+  ---
+
+
+  ### Request Body
+
+
+  Content-Type: `application/json`
+
+
+  | Parameter | Type | Required | Description |
+
+  | --- | --- | --- | --- |
+
+  | `phone` | string | Yes | The user's phone number (e.g. `+84-775030435`) |
+
+  | `password` | string | Yes | The user's hashed password |
+
+  | `remember` | boolean | Yes | Whether to keep the session alive |
+
+
+  **Example:**
+
+
+  ``` json
+
+  {
+    "phone": "+84-775030435",
+    "password": "<hashed_password>",
+    "remember": false
+  }
+
+   ```
+
+  ---
+
+
+  ### Successful Response — HTTP 200
+
+
+  | Field | Type | Description |
+
+  | --- | --- | --- |
+
+  | `status` | string | `"OK"` on success |
+
+  | `data.user_id` | string | The unique identifier for the authenticated user |
+
+  | `data.user_name` | string | The user's display name |
+
+  | `data.access_token` | string | JWT access token — stored automatically in
+  the `user_token` env variable |
+
+  | `data.refresh_token` | string | JWT refresh token for obtaining new access
+  tokens |
+
+  | `data.org_roles` | object | Object containing the user's organization roles
+  and permissions |
+
+  | `data.first_login` | boolean | Indicates whether this is the user's first
+  login |
+
+  | `data.tour_guide` | object | Object containing onboarding/tour guide state
+  for the user |
+
+
+  ---
+
+
+  ### Post-Response Script
+
+
+  After a successful response, the post-response script automatically saves the
+  following values to the active environment:
+
+
+  - `access_token` → **`user_token`**
+      
+  - `user_id` → **`user_id`**
+      
+  - `user_name` → **`user_name`**
+      
+
+  These variables are then available for use in subsequent requests throughout
+  the collection.
+url: "{{base_url}}/auth/sign_in"
+method: POST
+body:
+  type: text
+  content: "{\r
+
+    \"remember\":false,\r
+
+    \"password\":\"$2a$10$5xpWOscZ7wuF.6VpC10useetGJiR83lhdAcyInXzGp16GXxBzDPcu\
+    \",\r
+
+    \"phone\":\"+84-775030435\"\r
+
+    }\r\n"
+scripts:
+  - type: afterResponse
+    code: "let jsonData = pm.response.json();\r
+
+      \r
+
+      if(jsonData.data){\r
+
+      \    pm.environment.set(\"user_token\", jsonData.data.access_token);\r
+
+      \    pm.environment.set(\"user_id\", jsonData.data.user_id);\r
+
+      \    pm.environment.set(\"user_name\", jsonData.data.user_name);\r
+
+      \    pm.environment.set(\"user_refesh_token\",
+      jsonData.data.refresh_token);\r
+
+      }\r
+
+      //1. Check login successfully\r
+
+      pm.test(\"Login successfully\", function () {\r
+
+      \    try{\r
+
+      \        pm.expect(jsonData.status).to.eql(\"OK\");\r
+
+      \    }catch(error){\r
+
+      \        console.log(error);\r
+
+      \        throw new Error(\"Fail!: \" + error.message);\r
+
+      \    }\r
+
+      })\r\n"
+    language: text/javascript
+order: 1000

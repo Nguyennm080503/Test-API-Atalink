@@ -1,0 +1,327 @@
+$kind: http-request
+description: |-
+  API lấy tất cả sản phẩm của org, hỗ trợ filter và phân trang thông qua các query parameters.
+
+  ## Endpoint
+
+  `GET /org-products/products/group-by-orgs`
+
+  ## Query Parameters
+
+  | Parameter | Type | Required | Description |
+  | --- | --- | --- | --- |
+  | `limit` | integer | Yes | Number of products to return per page. Example: `32` |
+  | `offset` | integer | Yes | Number of products to skip (for pagination). Example: `0` |
+  | `sortType` | string | Yes | Sort direction. Accepted values: `asc`, `desc` |
+  | `sortBy` | string | Yes | Field to sort by. Accepted values: `updated`, `created`, `price`, `name` |
+  | `priceFrom` | number | No | Minimum price filter. Example: `10` |
+  | `priceTo` | number | No | Maximum price filter. Example: `10000` |
+  | `locale` | string | No | Language/locale for product data. Example: `vi` (Vietnamese), `en` (English) |
+
+  ## Example Request
+
+  ```
+  GET https://api.atalink.com/org-products/products/group-by-orgs?limit=32&offset=0&sortType=desc&sortBy=updated&priceFrom=10&priceTo=10000&locale=vi
+
+   ```
+
+  ## Response
+
+  Returns a JSON object with a `data` property containing the paginated list of products grouped by organization.
+
+  ### Response Structure
+
+  ``` json
+  {
+    "data": {
+      "data": [
+        {
+          "masterProductId": "string",
+          "name": "string",
+          "updatedAt": "ISO 8601 datetime",
+          ...
+        }
+      ],
+      "total": "number",
+      "limit": "number",
+      "offset": "number"
+    }
+  }
+
+   ```
+
+  ## Tests Included
+
+  This request includes the following automated post-response tests:
+
+  1. **Status code is 200** — Verifies the API returns HTTP 200.
+      
+  2. **Response time is less than 3000ms** — Ensures the response is fast enough.
+      
+  3. **Response body is not empty** — Confirms the response is not null.
+      
+  4. **Response has data** — Checks that the `data` property exists.
+      
+  5. **Data has max 32 products / page** — Validates pagination limit is respected.
+      
+  6. **Data is sorted descending by updated date** — Verifies correct sort order.
+      
+  7. **No products are duplicated** — Ensures no duplicate products appear in the result.
+url: https://api.atalink.com/org-products/products/group-by-orgs?limit=32&offset=0&sortType=desc&sortBy=updated&priceFrom=10&priceTo=10000&locale=vi
+method: GET
+queryParams:
+  - key: q
+    value: ""
+    disabled: true
+    description: search name product
+  - key: limit
+    value: "32"
+  - key: offset
+    value: "0"
+  - key: sortType
+    value: desc
+  - key: sortBy
+    value: updated
+    description: best_macth/updated/price
+  - key: priceFrom
+    value: "10"
+  - key: priceTo
+    value: "10000"
+  - key: locationCodes
+    value: ""
+    disabled: true
+    description: code-city
+  - key: categoryCodes
+    value: ""
+    disabled: true
+  - key: orgCityIds
+    value: ""
+    disabled: true
+  - key: masterCategoryIds
+    value: ""
+    disabled: true
+  - key: locale
+    value: vi
+scripts:
+  - type: afterResponse
+    code: "let jsonData = pm.response.json();\r
+
+      // 1. Check status code\r
+
+      pm.test(\"Status code is 200\", function () {\r
+
+      \    try{\r
+
+      \        pm.response.to.have.status(200);\r
+
+      \    }catch(error){\r
+
+      \        console.log(error);\r
+
+      \        throw new Error(\"Fail!\");\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      // 2. Check response time\r
+
+      pm.test(\"Response time is less than 3000ms\", function () {\r
+
+      \    try{\r
+
+      \        pm.expect(pm.response.responseTime).to.be.below(3000);\r
+
+      \    }catch(error){\r
+
+      \        console.log(error);\r
+
+      \        throw new Error(\"Fail!\");\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      // 3. Check response is not empty\r
+
+      pm.test(\"Response body is not empty\", function () {\r
+
+      \    try{\r
+
+      \        pm.expect(jsonData).to.not.be.null;\r
+
+      \    }catch(error){\r
+
+      \        console.log(error);\r
+
+      \        throw new Error(\"Fail!\");\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      // 4. Check data exists\r
+
+      pm.test(\"Response has data\", function () {\r
+
+      \    try{\r
+
+      \        pm.expect(jsonData).to.have.property(\"data\");\r
+
+      \    }catch(error){\r
+
+      \        console.log(error);\r
+
+      \        throw new Error(\"Fail!\");\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      // 5. Check data is an array\r
+
+      pm.test(\"Data has max 32 products / page\", function () {\r
+
+      \    try{\r
+
+      \        pm.expect(jsonData.data).to.have.property(\"data\").length <=
+      32;\r
+
+      \    }catch(error){\r
+
+      \        console.log(error);\r
+
+      \        throw new Error(\"Fail!\");\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      \r
+
+      // 6. Validate sorting (desc - optional check)\r
+
+      pm.test(\"Data is sorted descending by updated date\", function () {\r
+
+      \    try{\r
+
+      \    let dates = jsonData.data.data.map(item => new
+      Date(item.updatedAt).getTime());\r
+
+      \r
+
+      \    let sorted = [...dates].sort((a, b) => b - a);\r
+
+      \r
+
+      \    pm.expect(dates).to.eql(sorted);\r
+
+      \    }catch(error){\r
+
+      \        console.log(error);\r
+
+      \        throw new Error(\"Fail!\")\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      //7. Validate any duplicate products\r
+
+      pm.test(\"No products are duplicated.\", function() {\r
+
+      \    try{\r
+
+      \        let products = jsonData.data.data;\r
+
+      \r
+
+      \        let seen = new Set();\r
+
+      \        let duplicates = [];\r
+
+      \r
+
+      \        products.forEach(p => {\r
+
+      \            let id = p.masterProductId;\r
+
+      \            let name = p.name;\r
+
+      \r
+
+      \            if (!id || !name) return;\r
+
+      \r
+
+      \            let key = `${id}-${name}`;\r
+
+      \r
+
+      \            if (seen.has(key)) {\r
+
+      \                duplicates.push({ id, name });\r
+
+      \            } else {\r
+
+      \                seen.add(key);\r
+
+      \            }\r
+
+      \        });\r
+
+      \r
+
+      \        pm.expect(duplicates.length).to.eql(0);\r
+
+      \r
+
+      \    }catch(error){\r
+
+      \        console.log(\"Case 7 : \" + error);\r
+
+      \        throw new Error(\"Fail!\");\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      \r
+
+      //8. Validate products with priceTo-priceFrom\r
+
+      pm.test(\"Get data between priceFrom and priceTo\", function () {\r
+
+      \    let priceFrom = Number(pm.request.url.query.get(\"priceFrom\"));\r
+
+      \    let priceTo = Number(pm.request.url.query.get(\"priceTo\"));\r
+
+      \r
+
+      \    let invalid = jsonData.data.data.filter(p =>\r
+
+      \        p.highestPrice <= priceFrom && p.highestPrice >= priceTo\r
+
+      \    );\r
+
+      \    pm.expect(invalid.length).to.eql(0);\r
+
+      });\r
+
+      \r\n"
+    language: text/javascript
+order: 1000

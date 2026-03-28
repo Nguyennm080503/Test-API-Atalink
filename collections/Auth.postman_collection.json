@@ -1,0 +1,75 @@
+{
+  "info": {
+    "_postman_id": "a18f2dd0-0f34-4ffb-9115-2bb9474b19ca",
+    "name": "Auth",
+    "description": "## Authentication\n\nThis collection handles **user authentication** for the Atalink API. It contains requests for managing access to the platform, starting with the sign-in flow.\n\n### Endpoints\n\n| Method | Endpoint | Description |\n| --- | --- | --- |\n| POST | `/auth/sign_in` | Authenticates a user and returns an access token |\n\n### Usage\n\nUse the **Login** request to obtain an access token from `https://api.atalink.com/auth/sign_in`. The returned token should be stored (e.g., in an environment variable) and used as a Bearer token to authorize requests in other collections such as **Products** and **Profile**.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "38705930"
+  },
+  "item": [
+    {
+      "name": "Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "let jsonData = pm.response.json();\r",
+              "\r",
+              "if(jsonData.data){\r",
+              "    pm.environment.set(\"user_token\", jsonData.data.access_token);\r",
+              "    pm.environment.set(\"user_id\", jsonData.data.user_id);\r",
+              "    pm.environment.set(\"user_name\", jsonData.data.user_name);\r",
+              "    pm.environment.set(\"user_refesh_token\", jsonData.data.refresh_token);\r",
+              "}\r",
+              "//1. Check login successfully\r",
+              "pm.test(\"Login successfully\", function () {\r",
+              "    try{\r",
+              "        pm.expect(jsonData.status).to.eql(\"OK\");\r",
+              "    }catch(error){\r",
+              "        console.log(error);\r",
+              "        throw new Error(\"Fail!: \" + error.message);\r",
+              "    }\r",
+              "})\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n\"remember\":false,\r\n\"password\":\"$2a$10$5xpWOscZ7wuF.6VpC10useetGJiR83lhdAcyInXzGp16GXxBzDPcu\",\r\n\"phone\":\"+84-775030435\"\r\n}\r\n"
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/sign_in",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "auth",
+            "sign_in"
+          ]
+        },
+        "description": "## Login (Sign In)\n\nAuthenticates a user and returns a JWT access token along with user profile information. Use this endpoint to obtain the `access_token` required for subsequent authenticated requests.\n\n---\n\n### HTTP Method & URL\n\n```\nPOST {{base_url}}/auth/sign_in\n\n ```\n\n---\n\n### Request Body\n\nContent-Type: `application/json`\n\n| Parameter | Type | Required | Description |\n| --- | --- | --- | --- |\n| `phone` | string | Yes | The user's phone number (e.g. `+84-775030435`) |\n| `password` | string | Yes | The user's hashed password |\n| `remember` | boolean | Yes | Whether to keep the session alive |\n\n**Example:**\n\n``` json\n{\n  \"phone\": \"+84-775030435\",\n  \"password\": \"<hashed_password>\",\n  \"remember\": false\n}\n\n ```\n\n---\n\n### Successful Response — HTTP 200\n\n| Field | Type | Description |\n| --- | --- | --- |\n| `status` | string | `\"OK\"` on success |\n| `data.user_id` | string | The unique identifier for the authenticated user |\n| `data.user_name` | string | The user's display name |\n| `data.access_token` | string | JWT access token — stored automatically in the `user_token` env variable |\n| `data.refresh_token` | string | JWT refresh token for obtaining new access tokens |\n| `data.org_roles` | object | Object containing the user's organization roles and permissions |\n| `data.first_login` | boolean | Indicates whether this is the user's first login |\n| `data.tour_guide` | object | Object containing onboarding/tour guide state for the user |\n\n---\n\n### Post-Response Script\n\nAfter a successful response, the post-response script automatically saves the following values to the active environment:\n\n- `access_token` → **`user_token`**\n    \n- `user_id` → **`user_id`**\n    \n- `user_name` → **`user_name`**\n    \n\nThese variables are then available for use in subsequent requests throughout the collection."
+      },
+      "response": []
+    }
+  ]
+}

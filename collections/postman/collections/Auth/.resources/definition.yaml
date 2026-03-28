@@ -1,0 +1,27 @@
+$kind: collection
+description: >-
+  ## Authentication
+
+
+  This collection handles **user authentication** for the Atalink API. It
+  contains requests for managing access to the platform, starting with the
+  sign-in flow.
+
+
+  ### Endpoints
+
+
+  | Method | Endpoint | Description |
+
+  | --- | --- | --- |
+
+  | POST | `/auth/sign_in` | Authenticates a user and returns an access token |
+
+
+  ### Usage
+
+
+  Use the **Login** request to obtain an access token from
+  `https://api.atalink.com/auth/sign_in`. The returned token should be stored
+  (e.g., in an environment variable) and used as a Bearer token to authorize
+  requests in other collections such as **Products** and **Profile**.
